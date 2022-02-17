@@ -1,0 +1,18 @@
+<article class="blog-post">
+  <h2 class="blog-post-title"><%= article.title %></h2>
+  <p class="blog-post-meta">
+    <%= render 'article_detail', article: article %>
+  </p>
+
+  <p><%= truncate(article.body, length: 150) %></p>
+
+  <p><%= link_to t('articles.continue_reading'), article, class: 'btn btn-link' %></p>
+
+  <%= link_to t('app.button.edit'), edit_article_path(article),
+              class: 'btn btn-primary' if policy(article).update? %>
+
+  <%= link_to t('app.button.destroy'), article_path(article),
+    method: :delete,
+    data: { confirm: t('app.message.confirm_destroy') },
+    class: 'btn btn-danger' if policy(article).destroy? %>
+</article>

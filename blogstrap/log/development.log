@@ -1,0 +1,990 @@
+  [1m[35m (4.8ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (1.1ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (11.7ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY)[0m
+  [1m[35m (8.6ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL)[0m
+  [1m[35m (1.7ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Migrating to CreateArticles (20210521233120)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (5.6ms)[0m  [1m[35mCREATE TABLE "articles" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar, "body" text, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL)[0m
+  [1m[36mActiveRecord::SchemaMigration Create (3.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20210521233120"]]
+  [1m[36mTRANSACTION (4.3ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateCategories (20210727212150)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (5.9ms)[0m  [1m[35mCREATE TABLE "categories" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL)[0m
+  [1m[36mActiveRecord::SchemaMigration Create (4.4ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20210727212150"]]
+  [1m[36mTRANSACTION (2.8ms)[0m  [1m[36mcommit transaction[0m
+Migrating to AddCategoryToArticles (20210727212557)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys = ON[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys = OFF[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE TEMPORARY TABLE "aarticles" ("id" integer NOT NULL PRIMARY KEY, "title" varchar DEFAULT NULL, "body" text DEFAULT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL)[0m
+  [1m[35m (0.1ms)[0m  [1m[32mINSERT INTO "aarticles" ("id","title","body","created_at","updated_at")
+                     SELECT "id","title","body","created_at","updated_at" FROM "articles"[0m
+  [1m[35m (2.1ms)[0m  [1m[35mDROP TABLE "articles"[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE TABLE "articles" ("id" integer NOT NULL PRIMARY KEY, "title" varchar DEFAULT NULL, "body" text DEFAULT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "category_id" integer NOT NULL)[0m
+  [1m[35m (0.2ms)[0m  [1m[32mINSERT INTO "articles" ("id","title","body","created_at","updated_at")
+                     SELECT "id","title","body","created_at","updated_at" FROM "aarticles"[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE "aarticles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys = 0[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys = 1[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_articles_on_category_id" ON "articles" ("category_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys[0m
+  [1m[35m (0.2ms)[0m  [1m[35mPRAGMA defer_foreign_keys[0m
+  [1m[35m (0.8ms)[0m  [1m[35mPRAGMA defer_foreign_keys = ON[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys = OFF[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE TEMPORARY TABLE "aarticles" ("id" integer NOT NULL PRIMARY KEY, "title" varchar DEFAULT NULL, "body" text DEFAULT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "category_id" integer NOT NULL)[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "tindex_aarticles_on_category_id" ON "aarticles" ("category_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[32mINSERT INTO "aarticles" ("id","title","body","created_at","updated_at","category_id")
+                     SELECT "id","title","body","created_at","updated_at","category_id" FROM "articles"[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE "articles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE TABLE "articles" ("id" integer NOT NULL PRIMARY KEY, "title" varchar DEFAULT NULL, "body" text DEFAULT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "category_id" integer NOT NULL, CONSTRAINT "fk_rails_af09d53ead"
+FOREIGN KEY ("category_id")
+  REFERENCES "categories" ("id")
+)[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_articles_on_category_id" ON "articles" ("category_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[32mINSERT INTO "articles" ("id","title","body","created_at","updated_at","category_id")
+                     SELECT "id","title","body","created_at","updated_at","category_id" FROM "aarticles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE "aarticles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys = 0[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys = 1[0m
+  [1m[36mActiveRecord::SchemaMigration Create (4.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20210727212557"]]
+  [1m[36mTRANSACTION (5.4ms)[0m  [1m[36mcommit transaction[0m
+Migrating to DeviseCreateUsers (20210731133649)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (7.6ms)[0m  [1m[35mCREATE TABLE "users" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "email" varchar DEFAULT '' NOT NULL, "encrypted_password" varchar DEFAULT '' NOT NULL, "reset_password_token" varchar, "reset_password_sent_at" datetime, "remember_created_at" datetime, "sign_in_count" integer DEFAULT 0 NOT NULL, "current_sign_in_at" datetime, "last_sign_in_at" datetime, "current_sign_in_ip" varchar, "last_sign_in_ip" varchar, "confirmation_token" varchar, "confirmed_at" datetime, "confirmation_sent_at" datetime, "unconfirmed_email" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL)[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_email" ON "users" ("email")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_reset_password_token" ON "users" ("reset_password_token")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_confirmation_token" ON "users" ("confirmation_token")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (2.9ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20210731133649"]]
+  [1m[36mTRANSACTION (6.4ms)[0m  [1m[36mcommit transaction[0m
+Migrating to AddUserToArticles (20210731134143)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mrollback transaction[0m
+  [1m[35m (1.4ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (0.7ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Migrating to AddUserToArticles (20210731134143)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys = ON[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys = OFF[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE TEMPORARY TABLE "aarticles" ("id" integer NOT NULL PRIMARY KEY, "title" varchar DEFAULT NULL, "body" text DEFAULT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "category_id" integer NOT NULL)[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "tindex_aarticles_on_category_id" ON "aarticles" ("category_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[32mINSERT INTO "aarticles" ("id","title","body","created_at","updated_at","category_id")
+                     SELECT "id","title","body","created_at","updated_at","category_id" FROM "articles"[0m
+  [1m[35m (355.0ms)[0m  [1m[35mDROP TABLE "articles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE TABLE "articles" ("id" integer NOT NULL PRIMARY KEY, "title" varchar DEFAULT NULL, "body" text DEFAULT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "category_id" integer NOT NULL, "user_id" integer NOT NULL, CONSTRAINT "fk_rails_af09d53ead"
+FOREIGN KEY ("category_id")
+  REFERENCES "categories" ("id")
+)[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_articles_on_category_id" ON "articles" ("category_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[32mINSERT INTO "articles" ("id","title","body","created_at","updated_at","category_id")
+                     SELECT "id","title","body","created_at","updated_at","category_id" FROM "aarticles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE "aarticles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys = 0[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys = 1[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_articles_on_user_id" ON "articles" ("user_id")[0m
+  [1m[35m (0.0ms)[0m  [1m[35mPRAGMA foreign_keys[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys = ON[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys = OFF[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE TEMPORARY TABLE "aarticles" ("id" integer NOT NULL PRIMARY KEY, "title" varchar DEFAULT NULL, "body" text DEFAULT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "category_id" integer NOT NULL, "user_id" integer NOT NULL)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "tindex_aarticles_on_user_id" ON "aarticles" ("user_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "tindex_aarticles_on_category_id" ON "aarticles" ("category_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[32mINSERT INTO "aarticles" ("id","title","body","created_at","updated_at","category_id","user_id")
+                     SELECT "id","title","body","created_at","updated_at","category_id","user_id" FROM "articles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE "articles"[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE TABLE "articles" ("id" integer NOT NULL PRIMARY KEY, "title" varchar DEFAULT NULL, "body" text DEFAULT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "category_id" integer NOT NULL, "user_id" integer NOT NULL, CONSTRAINT "fk_rails_af09d53ead"
+FOREIGN KEY ("category_id")
+  REFERENCES "categories" ("id")
+, CONSTRAINT "fk_rails_3d31dad1cc"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_articles_on_category_id" ON "articles" ("category_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE INDEX "index_articles_on_user_id" ON "articles" ("user_id")[0m
+  [1m[35m (0.1ms)[0m  [1m[32mINSERT INTO "articles" ("id","title","body","created_at","updated_at","category_id","user_id")
+                     SELECT "id","title","body","created_at","updated_at","category_id","user_id" FROM "aarticles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mDROP TABLE "aarticles"[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA defer_foreign_keys = 0[0m
+  [1m[35m (0.1ms)[0m  [1m[35mPRAGMA foreign_keys = 1[0m
+  [1m[36mActiveRecord::SchemaMigration Create (2.7ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20210731134143"]]
+  [1m[36mTRANSACTION (10.1ms)[0m  [1m[36mcommit transaction[0m
+Migrating to AddAdminToUsers (20210812221623)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (5.6ms)[0m  [1m[35mALTER TABLE "users" ADD "admin" boolean DEFAULT 0[0m
+  [1m[36mActiveRecord::SchemaMigration Create (4.0ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20210812221623"]]
+  [1m[36mTRANSACTION (8.7ms)[0m  [1m[36mcommit transaction[0m
+Migrating to RolifyCreateRoles (20210812230844)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (5.5ms)[0m  [1m[35mCREATE TABLE "roles" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar, "resource_type" varchar, "resource_id" integer, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL)[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_roles_on_resource" ON "roles" ("resource_type", "resource_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE TABLE "users_roles" ("user_id" integer, "role_id" integer)[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_users_roles_on_user_id" ON "users_roles" ("user_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_users_roles_on_role_id" ON "users_roles" ("role_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_roles_on_name" ON "roles" ("name")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_roles_on_name_and_resource_type_and_resource_id" ON "roles" ("name", "resource_type", "resource_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_users_roles_on_user_id_and_role_id" ON "users_roles" ("user_id", "role_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (5.7ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20210812230844"]]
+  [1m[36mTRANSACTION (13.2ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateComments (20210929215107)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (7.7ms)[0m  [1m[35mCREATE TABLE "comments" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "body" text, "article_id" integer NOT NULL, "user_id" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_3bf61a60d3"
+FOREIGN KEY ("article_id")
+  REFERENCES "articles" ("id")
+, CONSTRAINT "fk_rails_03de2dc08c"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+)[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_comments_on_article_id" ON "comments" ("article_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE INDEX "index_comments_on_user_id" ON "comments" ("user_id")[0m
+  [1m[36mActiveRecord::SchemaMigration Create (1.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20210929215107"]]
+  [1m[36mTRANSACTION (2.3ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.9ms)[0m  [1m[34mSELECT "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? LIMIT ?[0m  [["key", "environment"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[36mActiveRecord::InternalMetadata Create (5.5ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES (?, ?, ?, ?)[0m  [["key", "environment"], ["value", "development"], ["created_at", "2022-02-16 10:55:11.120915"], ["updated_at", "2022-02-16 10:55:11.120915"]]
+  [1m[36mTRANSACTION (2.3ms)[0m  [1m[36mcommit transaction[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (0.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Started GET "/" for 10.0.2.2 at 2022-02-16 10:56:21 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+  [1m[35m (1.4ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (0.7ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Processing by ArticlesController#index as HTML
+  [1m[35m (0.4ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.7ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (1.2ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 31)
+  Rendered articles/_pagination.html.erb (Duration: 2.1ms | Allocations: 343)
+  Rendered articles/_about.html.erb (Duration: 1.1ms | Allocations: 176)
+  Rendered articles/_archives.html.erb (Duration: 1.0ms | Allocations: 219)
+  Rendered articles/_elsewhere.html.erb (Duration: 1.1ms | Allocations: 144)
+  Rendered articles/_right_side.html.erb (Duration: 9.0ms | Allocations: 1267)
+  [1m[36mCategory Load (0.7ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 581.4ms | Allocations: 75634)
+[Webpacker] Compiling...
+[Webpacker] Compiled all packs in /home/vagrant/blogstrap/public/packs
+[Webpacker] Browserslist: caniuse-lite is outdated. Please run:
+npx browserslist@latest --update-db
+
+Why you should do it regularly:
+https://github.com/browserslist/browserslist#browsers-data-updating
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will not be used for @babel/plugin-proposal-private-methods since the "loose" mode option was set to "true" for @babel/plugin-proposal-class-properties.
+The "loose" option must be the same for @babel/plugin-proposal-class-properties, @babel/plugin-proposal-private-methods and @babel/plugin-proposal-private-property-in-object (when they are enabled): you can silence this warning by explicitly adding
+	["@babel/plugin-proposal-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+[Webpacker] Hash: 5b1ed24f9b21bceb2867
+Version: webpack 4.46.0
+Time: 16381ms
+Built at: 02/16/2022 10:56:41 AM
+                                     Asset       Size       Chunks                         Chunk Names
+    js/application-b586a577124c6e0f2a40.js   1.14 MiB  application  [emitted] [immutable]  application
+js/application-b586a577124c6e0f2a40.js.map   1.15 MiB  application  [emitted] [dev]        application
+                             manifest.json  364 bytes               [emitted]              
+Entrypoint application = js/application-b586a577124c6e0f2a40.js js/application-b586a577124c6e0f2a40.js.map
+[./app/javascript/channels sync recursive _channel\.js$] ./app/javascript/channels sync _channel\.js$ 160 bytes {application} [built]
+[./app/javascript/channels/index.js] 211 bytes {application} [built]
+[./app/javascript/packs/application.js] 549 bytes {application} [built]
+[./app/javascript/stylesheets/application.scss] 664 bytes {application} [built]
+[./node_modules/css-loader/dist/cjs.js?!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./app/javascript/stylesheets/application.scss] ./node_modules/css-loader/dist/cjs.js??ref--6-1!./node_modules/postcss-loader/src??ref--6-2!./node_modules/sass-loader/dist/cjs.js??ref--6-3!./app/javascript/stylesheets/application.scss 709 KiB {application} [built]
+[./node_modules/webpack/buildin/module.js] (webpack)/buildin/module.js 552 bytes {application} [built]
+    + 64 hidden modules
+
+  Rendered layouts/_locale_links.html.erb (Duration: 5.3ms | Allocations: 945)
+  Rendered layouts/_account_links.html.erb (Duration: 3.7ms | Allocations: 473)
+  Rendered layouts/_topnavbar.html.erb (Duration: 39.5ms | Allocations: 2748)
+  Rendered layouts/_flash_messages.html.erb (Duration: 1.4ms | Allocations: 235)
+  Rendered layouts/_footer.html.erb (Duration: 2.5ms | Allocations: 220)
+  Rendered layout layouts/application.html.erb (Duration: 19765.5ms | Allocations: 95541)
+Completed 200 OK in 19847ms (Views: 19784.4ms | ActiveRecord: 5.5ms | Allocations: 107095)
+
+
+Started GET "/" for 10.0.2.2 at 2022-02-16 11:14:19 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+  [1m[35m (1.4ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (0.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Processing by ArticlesController#index as HTML
+  [1m[35m (0.5ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.8ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (1.0ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 31)
+  Rendered articles/_pagination.html.erb (Duration: 1.2ms | Allocations: 339)
+  Rendered articles/_about.html.erb (Duration: 2.5ms | Allocations: 176)
+  Rendered articles/_archives.html.erb (Duration: 3.2ms | Allocations: 219)
+  Rendered articles/_elsewhere.html.erb (Duration: 1.1ms | Allocations: 144)
+  Rendered articles/_right_side.html.erb (Duration: 19.9ms | Allocations: 1267)
+  [1m[36mCategory Load (0.7ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 176.8ms | Allocations: 20162)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 2.2ms | Allocations: 946)
+  Rendered layouts/_account_links.html.erb (Duration: 1.8ms | Allocations: 473)
+  Rendered layouts/_topnavbar.html.erb (Duration: 14.7ms | Allocations: 2616)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.9ms | Allocations: 236)
+  Rendered layouts/_footer.html.erb (Duration: 1.1ms | Allocations: 220)
+  Rendered layout layouts/application.html.erb (Duration: 263.2ms | Allocations: 30075)
+Completed 200 OK in 308ms (Views: 270.2ms | ActiveRecord: 5.2ms | Allocations: 41515)
+
+
+Started GET "/pt-BR/users/sign_in" for 10.0.2.2 at 2022-02-16 11:14:31 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by Devise::SessionsController#new as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  Rendering layout layouts/application.html.erb
+  Rendering devise/sessions/new.html.erb within layouts/application
+  Rendered devise/shared/_links.html.erb (Duration: 3.1ms | Allocations: 908)
+  Rendered devise/sessions/new.html.erb within layouts/application (Duration: 328.6ms | Allocations: 23598)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.4ms | Allocations: 137)
+  Rendered layouts/_account_links.html.erb (Duration: 0.6ms | Allocations: 177)
+  Rendered layouts/_topnavbar.html.erb (Duration: 2.8ms | Allocations: 626)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.2ms | Allocations: 64)
+  Rendered layouts/_footer.html.erb (Duration: 1.0ms | Allocations: 69)
+  Rendered layout layouts/application.html.erb (Duration: 357.2ms | Allocations: 28089)
+Completed 200 OK in 393ms (Views: 364.5ms | ActiveRecord: 2.4ms | Allocations: 39407)
+
+
+Started GET "/" for 10.0.2.2 at 2022-02-16 11:14:49 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  [1m[35m (1.1ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.9ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (1.4ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 17)
+  Rendered articles/_pagination.html.erb (Duration: 0.4ms | Allocations: 91)
+  Rendered articles/_about.html.erb (Duration: 0.4ms | Allocations: 57)
+  Rendered articles/_archives.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.4ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 4.1ms | Allocations: 359)
+  [1m[36mCategory Load (0.9ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 22.4ms | Allocations: 2352)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.7ms | Allocations: 116)
+  Rendered layouts/_account_links.html.erb (Duration: 1.0ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 10.2ms | Allocations: 552)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.3ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 0.5ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 100.2ms | Allocations: 6625)
+Completed 200 OK in 118ms (Views: 100.6ms | ActiveRecord: 4.3ms | Allocations: 9407)
+
+
+Started GET "/" for 10.0.2.2 at 2022-02-16 11:14:54 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  [1m[35m (2.1ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.9ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (1.0ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 13)
+  Rendered articles/_pagination.html.erb (Duration: 0.8ms | Allocations: 90)
+  Rendered articles/_about.html.erb (Duration: 0.3ms | Allocations: 57)
+  Rendered articles/_archives.html.erb (Duration: 0.7ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.3ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 6.7ms | Allocations: 359)
+  [1m[36mCategory Load (1.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 23.9ms | Allocations: 2335)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.6ms | Allocations: 114)
+  Rendered layouts/_account_links.html.erb (Duration: 0.9ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 4.5ms | Allocations: 549)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.3ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 0.4ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 77.1ms | Allocations: 6602)
+Completed 200 OK in 100ms (Views: 78.3ms | ActiveRecord: 5.1ms | Allocations: 9092)
+
+
+Started GET "/" for 10.0.2.2 at 2022-02-16 11:22:45 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  ↳ app/models/category.rb:9:in `block in <class:Category>'
+  [1m[35m (0.8ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.8ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (0.7ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.0ms | Allocations: 13)
+  Rendered articles/_pagination.html.erb (Duration: 0.7ms | Allocations: 91)
+  Rendered articles/_about.html.erb (Duration: 0.3ms | Allocations: 57)
+  Rendered articles/_archives.html.erb (Duration: 0.4ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.4ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 4.1ms | Allocations: 359)
+  [1m[36mCategory Load (0.7ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 14.5ms | Allocations: 2367)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.2ms | Allocations: 114)
+  Rendered layouts/_account_links.html.erb (Duration: 0.5ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 2.9ms | Allocations: 549)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.5ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 1.1ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 48.8ms | Allocations: 6644)
+Completed 200 OK in 93ms (Views: 48.9ms | ActiveRecord: 4.5ms | Allocations: 9876)
+
+
+Started GET "/en" for 10.0.2.2 at 2022-02-16 11:23:01 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+  [1m[35m (2.3ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (1.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"en"}
+  [1m[35m (2.6ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (1.1ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (1.0ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 31)
+  Rendered articles/_pagination.html.erb (Duration: 2.5ms | Allocations: 300)
+  Rendered articles/_about.html.erb (Duration: 1.1ms | Allocations: 176)
+  Rendered articles/_archives.html.erb (Duration: 1.5ms | Allocations: 216)
+  Rendered articles/_elsewhere.html.erb (Duration: 6.4ms | Allocations: 144)
+  Rendered articles/_right_side.html.erb (Duration: 15.0ms | Allocations: 1270)
+  [1m[36mCategory Load (0.9ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 145.6ms | Allocations: 18262)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 4.5ms | Allocations: 948)
+  Rendered layouts/_account_links.html.erb (Duration: 2.7ms | Allocations: 473)
+  Rendered layouts/_topnavbar.html.erb (Duration: 20.9ms | Allocations: 2622)
+  Rendered layouts/_flash_messages.html.erb (Duration: 1.6ms | Allocations: 236)
+  Rendered layouts/_footer.html.erb (Duration: 1.4ms | Allocations: 219)
+  Rendered layout layouts/application.html.erb (Duration: 269.7ms | Allocations: 28158)
+Completed 200 OK in 343ms (Views: 278.0ms | ActiveRecord: 9.5ms | Allocations: 40514)
+
+
+Started GET "/pt-BR" for 10.0.2.2 at 2022-02-16 11:23:04 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (1.0ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.6ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (0.6ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 17)
+  Rendered articles/_pagination.html.erb (Duration: 0.3ms | Allocations: 93)
+  Rendered articles/_about.html.erb (Duration: 0.2ms | Allocations: 58)
+  Rendered articles/_archives.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 5.6ms | Allocations: 666)
+  [1m[36mCategory Load (1.2ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 21.6ms | Allocations: 2912)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.6ms | Allocations: 123)
+  Rendered layouts/_account_links.html.erb (Duration: 0.7ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 6.1ms | Allocations: 785)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.2ms | Allocations: 59)
+  Rendered layouts/_footer.html.erb (Duration: 0.2ms | Allocations: 68)
+  Rendered layout layouts/application.html.erb (Duration: 61.8ms | Allocations: 7871)
+Completed 200 OK in 79ms (Views: 63.9ms | ActiveRecord: 3.4ms | Allocations: 11490)
+
+
+Started GET "/pt-BR" for 10.0.2.2 at 2022-02-16 11:23:06 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (1.1ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.9ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (0.9ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 13)
+  Rendered articles/_pagination.html.erb (Duration: 0.4ms | Allocations: 90)
+  Rendered articles/_about.html.erb (Duration: 0.2ms | Allocations: 57)
+  Rendered articles/_archives.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 2.9ms | Allocations: 359)
+  [1m[36mCategory Load (2.7ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 16.7ms | Allocations: 2334)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.3ms | Allocations: 114)
+  Rendered layouts/_account_links.html.erb (Duration: 0.7ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 3.4ms | Allocations: 549)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.3ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 0.4ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 49.3ms | Allocations: 6601)
+Completed 200 OK in 63ms (Views: 47.5ms | ActiveRecord: 5.5ms | Allocations: 9089)
+
+
+Started GET "/pt-BR" for 10.0.2.2 at 2022-02-16 11:27:56 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+  [1m[35m (2.1ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (1.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (0.6ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (2.4ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (1.2ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 31)
+  Rendered articles/_pagination.html.erb (Duration: 1.8ms | Allocations: 310)
+  Rendered articles/_about.html.erb (Duration: 1.4ms | Allocations: 176)
+  Rendered articles/_archives.html.erb (Duration: 1.6ms | Allocations: 216)
+  Rendered articles/_elsewhere.html.erb (Duration: 7.9ms | Allocations: 144)
+  Rendered articles/_right_side.html.erb (Duration: 19.4ms | Allocations: 1264)
+  [1m[36mCategory Load (1.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 174.6ms | Allocations: 18245)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 3.4ms | Allocations: 946)
+  Rendered layouts/_account_links.html.erb (Duration: 3.2ms | Allocations: 473)
+  Rendered layouts/_topnavbar.html.erb (Duration: 19.2ms | Allocations: 2616)
+  Rendered layouts/_flash_messages.html.erb (Duration: 1.6ms | Allocations: 236)
+  Rendered layouts/_footer.html.erb (Duration: 1.7ms | Allocations: 220)
+  Rendered layout layouts/application.html.erb (Duration: 301.1ms | Allocations: 28139)
+Completed 200 OK in 374ms (Views: 311.1ms | ActiveRecord: 8.2ms | Allocations: 38682)
+
+
+Started GET "/noetzold.tech" for 10.0.2.2 at 2022-02-16 11:28:04 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+  
+ActionController::RoutingError (No route matches [GET] "/noetzold.tech"):
+  
+Started GET "/noetzold.tech" for 10.0.2.2 at 2022-02-16 11:28:09 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+  
+ActionController::RoutingError (No route matches [GET] "/noetzold.tech"):
+  
+Started GET "/pt-BR" for 10.0.2.2 at 2022-02-17 10:01:29 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+  [1m[35m (8.0ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  [1m[35m (0.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (0.4ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.8ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (1.1ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.0ms | Allocations: 31)
+  Rendered articles/_pagination.html.erb (Duration: 5.9ms | Allocations: 310)
+  Rendered articles/_about.html.erb (Duration: 5.5ms | Allocations: 177)
+  Rendered articles/_archives.html.erb (Duration: 1.1ms | Allocations: 216)
+  Rendered articles/_elsewhere.html.erb (Duration: 6.9ms | Allocations: 144)
+  Rendered articles/_right_side.html.erb (Duration: 24.7ms | Allocations: 1265)
+  [1m[36mCategory Load (0.9ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 886.7ms | Allocations: 18253)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 15.5ms | Allocations: 946)
+  Rendered layouts/_account_links.html.erb (Duration: 20.3ms | Allocations: 473)
+  Rendered layouts/_topnavbar.html.erb (Duration: 101.2ms | Allocations: 2616)
+  Rendered layouts/_flash_messages.html.erb (Duration: 5.8ms | Allocations: 236)
+  Rendered layouts/_footer.html.erb (Duration: 6.1ms | Allocations: 220)
+  Rendered layout layouts/application.html.erb (Duration: 1264.4ms | Allocations: 28185)
+Completed 200 OK in 1392ms (Views: 1300.6ms | ActiveRecord: 5.5ms | Allocations: 38754)
+
+
+Started GET "/pt-BR/users/sign_in" for 10.0.2.2 at 2022-02-17 10:51:03 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by Devise::SessionsController#new as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+  ↳ app/controllers/application_controller.rb:16:in `switch_locale'
+  Rendering layout layouts/application.html.erb
+  Rendering devise/sessions/new.html.erb within layouts/application
+  Rendered devise/shared/_links.html.erb (Duration: 50.9ms | Allocations: 908)
+  Rendered devise/sessions/new.html.erb within layouts/application (Duration: 444.3ms | Allocations: 18803)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.3ms | Allocations: 137)
+  Rendered layouts/_account_links.html.erb (Duration: 1.1ms | Allocations: 177)
+  Rendered layouts/_topnavbar.html.erb (Duration: 3.9ms | Allocations: 626)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.2ms | Allocations: 64)
+  Rendered layouts/_footer.html.erb (Duration: 0.3ms | Allocations: 69)
+  Rendered layout layouts/application.html.erb (Duration: 481.9ms | Allocations: 23294)
+Completed 200 OK in 520ms (Views: 489.5ms | ActiveRecord: 4.0ms | Allocations: 35387)
+
+
+Started GET "/en" for 10.0.2.2 at 2022-02-17 10:51:16 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"en"}
+  [1m[35m (1.6ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (1.0ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (1.1ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 17)
+  Rendered articles/_pagination.html.erb (Duration: 0.4ms | Allocations: 91)
+  Rendered articles/_about.html.erb (Duration: 0.3ms | Allocations: 58)
+  Rendered articles/_archives.html.erb (Duration: 0.4ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.3ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 8.2ms | Allocations: 672)
+  [1m[36mCategory Load (1.1ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 27.3ms | Allocations: 2910)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.5ms | Allocations: 118)
+  Rendered layouts/_account_links.html.erb (Duration: 0.7ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 6.1ms | Allocations: 762)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.3ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 0.3ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 73.1ms | Allocations: 7705)
+Completed 200 OK in 94ms (Views: 76.4ms | ActiveRecord: 4.8ms | Allocations: 11285)
+
+
+Started GET "/pt-BR" for 10.0.2.2 at 2022-02-17 10:51:21 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (4.3ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (1.9ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (0.9ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 13)
+  Rendered articles/_pagination.html.erb (Duration: 0.8ms | Allocations: 90)
+  Rendered articles/_about.html.erb (Duration: 0.3ms | Allocations: 57)
+  Rendered articles/_archives.html.erb (Duration: 0.4ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.3ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 3.9ms | Allocations: 359)
+  [1m[36mCategory Load (0.9ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 22.5ms | Allocations: 2334)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.2ms | Allocations: 116)
+  Rendered layouts/_account_links.html.erb (Duration: 0.6ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 2.5ms | Allocations: 551)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.3ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 0.3ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 72.9ms | Allocations: 7153)
+Completed 200 OK in 104ms (Views: 76.3ms | ActiveRecord: 8.0ms | Allocations: 9661)
+
+
+Started GET "/pt-BR" for 10.0.2.2 at 2022-02-17 10:51:23 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (1.1ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.8ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (0.8ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.0ms | Allocations: 13)
+  Rendered articles/_pagination.html.erb (Duration: 0.3ms | Allocations: 90)
+  Rendered articles/_about.html.erb (Duration: 0.4ms | Allocations: 57)
+  Rendered articles/_archives.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 2.5ms | Allocations: 359)
+  [1m[36mCategory Load (0.6ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 12.7ms | Allocations: 2334)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.2ms | Allocations: 114)
+  Rendered layouts/_account_links.html.erb (Duration: 0.6ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 2.3ms | Allocations: 549)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.2ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 0.2ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 42.3ms | Allocations: 6611)
+Completed 200 OK in 54ms (Views: 42.0ms | ActiveRecord: 3.4ms | Allocations: 9107)
+
+
+Started GET "/pt-BR" for 10.0.2.2 at 2022-02-17 10:51:25 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (1.2ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.9ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (0.8ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 13)
+  Rendered articles/_pagination.html.erb (Duration: 0.4ms | Allocations: 90)
+  Rendered articles/_about.html.erb (Duration: 0.3ms | Allocations: 57)
+  Rendered articles/_archives.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 2.7ms | Allocations: 359)
+  [1m[36mCategory Load (0.7ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 14.2ms | Allocations: 2334)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.2ms | Allocations: 114)
+  Rendered layouts/_account_links.html.erb (Duration: 0.5ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 2.2ms | Allocations: 549)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.3ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 0.3ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 41.9ms | Allocations: 6601)
+Completed 200 OK in 55ms (Views: 41.4ms | ActiveRecord: 3.6ms | Allocations: 9092)
+
+
+Started GET "/pt-BR" for 10.0.2.2 at 2022-02-17 10:51:32 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (1.3ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.8ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (0.8ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.2ms | Allocations: 13)
+  Rendered articles/_pagination.html.erb (Duration: 0.5ms | Allocations: 90)
+  Rendered articles/_about.html.erb (Duration: 0.2ms | Allocations: 57)
+  Rendered articles/_archives.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 4.1ms | Allocations: 359)
+  [1m[36mCategory Load (0.8ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 16.0ms | Allocations: 2334)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 1.4ms | Allocations: 114)
+  Rendered layouts/_account_links.html.erb (Duration: 1.1ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 5.5ms | Allocations: 549)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.3ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 0.4ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 62.9ms | Allocations: 6601)
+Completed 200 OK in 80ms (Views: 63.4ms | ActiveRecord: 3.7ms | Allocations: 9088)
+
+
+Started GET "/pt-BR" for 10.0.2.2 at 2022-02-17 10:51:38 +0000
+Cannot render console from 10.0.2.2! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by ArticlesController#index as HTML
+  Parameters: {"locale"=>"pt-BR"}
+  [1m[35m (1.1ms)[0m  [1m[34mSELECT COUNT(*) AS count_all, strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at") AS strftime_y_m_01_00_00_00_utc_articles_created_at FROM "articles" WHERE ("articles"."created_at" IS NOT NULL) GROUP BY strftime('%Y-%m-01 00:00:00 UTC', "articles"."created_at")[0m
+  ↳ app/controllers/articles_controller.rb:10:in `index'
+  [1m[36mArticle Load (0.9ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ?[0m  [["LIMIT", 3]]
+  ↳ app/controllers/articles_controller.rb:19:in `index'
+  Rendering layout layouts/application.html.erb
+  Rendering articles/index.html.erb within layouts/application
+  [1m[36mArticle Load (1.2ms)[0m  [1m[34mSELECT "articles".* FROM "articles" ORDER BY "articles"."created_at" DESC LIMIT ? OFFSET ?[0m  [["LIMIT", 10], ["OFFSET", 0]]
+  ↳ app/views/articles/index.html.erb:19
+  Rendered collection of templates [0 times] (Duration: 0.1ms | Allocations: 13)
+  Rendered articles/_pagination.html.erb (Duration: 0.4ms | Allocations: 90)
+  Rendered articles/_about.html.erb (Duration: 0.4ms | Allocations: 57)
+  Rendered articles/_archives.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_elsewhere.html.erb (Duration: 0.2ms | Allocations: 47)
+  Rendered articles/_right_side.html.erb (Duration: 2.9ms | Allocations: 359)
+  [1m[36mCategory Load (0.9ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."name" ASC[0m
+  ↳ app/views/articles/index.html.erb:30
+  Rendered articles/index.html.erb within layouts/application (Duration: 17.1ms | Allocations: 2334)
+[Webpacker] Everything's up-to-date. Nothing to do
+  Rendered layouts/_locale_links.html.erb (Duration: 0.6ms | Allocations: 114)
+  Rendered layouts/_account_links.html.erb (Duration: 1.4ms | Allocations: 168)
+  Rendered layouts/_topnavbar.html.erb (Duration: 5.9ms | Allocations: 549)
+  Rendered layouts/_flash_messages.html.erb (Duration: 0.3ms | Allocations: 53)
+  Rendered layouts/_footer.html.erb (Duration: 0.4ms | Allocations: 67)
+  Rendered layout layouts/application.html.erb (Duration: 60.6ms | Allocations: 6601)
+Completed 200 OK in 74ms (Views: 60.3ms | ActiveRecord: 4.2ms | Allocations: 9088)
+
+
