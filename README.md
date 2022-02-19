@@ -1,5 +1,4 @@
 # Ruby_blogstrap
- Blog feito com Ruby on Rails e Bootstrap. Em que o ambiente foi criado através do virtualizador Vangrant.
  
 ## Projeto
 * Projeto de blog.
@@ -10,6 +9,8 @@
 * Foi usado Ruby 3.0.3.
 * Thymeleaf 2.7.
 * Postgresql de Banco de Dados.
+* Foi usado Vagrant para virtualizar o projeto.
+* Bootstrap usado para o front-end.
 
 ---
 
