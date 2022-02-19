@@ -7,7 +7,7 @@
 
 ## Desenvolvimento
 * Foi usado Ruby 3.0.3.
-* Thymeleaf 2.7.
+* Ruby on Rails 2.7.
 * Postgresql de Banco de Dados.
 * Foi usado Vagrant para virtualizar o projeto.
 * Bootstrap usado para o front-end.
